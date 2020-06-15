@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Sockets Tutorial</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font: 13px Helvetica, Arial;
+      }
+
+      .connection-info{
+        margin: 0 auto;
+        color: grey;
+      }
+      .disconnection-info{
+        color: red;
+        font-size: 20px;
+      }
+      form {
+        background: #000;
+        padding: 3px;
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+      }
+      form input {
+        border: 0;
+        padding: 10px;
+        width: 90%;
+        margin-right: 0.5%;
+      }
+      form button {
+        width: 9%;
+        background: rgb(130, 224, 255);
+        border: none;
+        padding: 10px;
+      }
+      #messages {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+      }
+      
+     
+    </style>
+  </head>
+  <body>
+    <ul id="messages"></ul>
+    <form action="">
+      <input id="m" autocomplete="off" /><button>Send</button>
+    </form>
+  </body>
+  <script src="/socket.io/socket.io.js"></script>
+<script>
+ window.onload = function() {
+     var socket = io();
+    const name =prompt("Enter your nickname ...");
+    socket.emit('connected',name);
+ 
+  let formElem =document.querySelector('form');
+  let inputElem =document.querySelector('input');
+  formElem.addEventListener('submit',function(e){
+    e.preventDefault();
+    let msg = document.querySelector('input');
+    socket.emit('chat msg',msg.value);
+    
+    msg.value = '';
+  })
+
+  socket.on('connection',function(){
+    console.log('hi');
+    
+  })
+  socket.on('chat msg',function(msg){
+    let msgDiv = document.querySelector('ul')
+    let liDiv = document.createElement('li');
+    liDiv.textContent = msg
+    msgDiv.appendChild(liDiv)
+
+  })
+  socket.on('connected',function(msg){
+    let msgDiv = document.querySelector('ul')
+    let liDiv = document.createElement('li');
+    liDiv.textContent = ` ${msg} connected ..... `
+    liDiv.classList.add('connection-info')
+    msgDiv.appendChild(liDiv)
+  })
+  inputElem.addEventListener('keydown',function(){
+  console.log(`${name} is typing `);
+  socket.emit('typing',name)
+  
+ })
+
+socket.on('user_disconnected',function(msg){
+  let msgDiv = document.querySelector('ul')
+    let liDiv = document.createElement('li');
+    liDiv.textContent = ` ${msg} disconnected ..... `
+    liDiv.classList.add('disconnection-info')
+    msgDiv.appendChild(liDiv)
+
+})
+ }
+ 
+  
+</script>
+</html>
